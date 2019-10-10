@@ -4,7 +4,8 @@
   "description": "A simple implementation of a dynamic finite state machine represinting an instance of a DFA (deterministic finite automata)",
   "main": "src/index.js",
   "scripts": {
-    "test": "tape test/**/*.test.js | tap-spec"
+    "test": "tape test/**/*.test.js | tap-spec",
+    "lint": "eslint src/"
   },
   "keywords": [
     "dfa",
@@ -19,6 +20,9 @@
     "chalk": "^2.4.2"
   },
   "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0"
   },

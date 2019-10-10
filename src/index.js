@@ -39,12 +39,12 @@ module.exports = class DFA {
 
     const { setState, transition } = this;
 
-    for (const input of inputString) {
-      if (input !== '0' && input !== '1')
+    inputString.split('').forEach((input) => {
+      if (input !== '0' && input !== '1') {
         throw new Error(`Invalid input "${input}"`);
-
+      }
       setState(transition(this.currentState, input));
-    }
+    });
 
     return {
       printStatus: this.printStatus,
@@ -54,13 +54,13 @@ module.exports = class DFA {
   }
 
   printStatus() {
-    let state = chalk.magenta(this.currentState),
-      status;
+    const state = chalk.magenta(this.currentState);
+    let status;
 
-    console.log(`\nMachine's current state: ${state}`);
+    process.stdout.write(`\n\nMachine's current state: ${state}`);
     if (this.currentState !== this.finalState) status = chalk.red('Fail');
     else status = chalk.green('Valid');
-    console.log(`${chalk.yellow('Status:')} ${status}`);
+    process.stdout.write(`\n${chalk.yellow('Status:')} ${status}`);
   }
 
   getStatus() {
