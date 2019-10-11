@@ -1,6 +1,6 @@
 {
   "name": "dfa-machine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple implementation of a dynamic finite state machine represinting an instance of a DFA (deterministic finite automata)",
   "main": "src/index.js",
   "scripts": {

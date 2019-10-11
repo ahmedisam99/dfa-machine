@@ -18,12 +18,13 @@ module.exports = class DFA {
     this.currentState = initial;
     this.finalStates = final;
     this.sigma = _sigma;
+    this.status = 'Fail';
 
     this.resetState = this.resetState.bind(this);
     this.transition = this.transition.bind(this);
     this.validate = this.validate.bind(this);
     this.printStatus = this.printStatus.bind(this);
-    this.getStatus = this.getStatus.bind(this);
+    this.isValid = this.isValid.bind(this);
   }
 
   resetState() {
@@ -32,6 +33,7 @@ module.exports = class DFA {
 
   transition(currentState, input) {
     this.currentState = this.states[currentState].on[input];
+    return this.currentState;
   }
 
   validate(string = '') {
@@ -42,10 +44,13 @@ module.exports = class DFA {
     if (stringErr) throw new Error(stringErr.details[0].message);
 
     if (!_string) {
+      const status = this.isValid() ? 'Valid' : 'Fail';
+      this.status = status;
       return {
         printStatus: this.printStatus,
         state: this.currentState,
-        status: this.getStatus(),
+        status,
+        isValid: this.isValid,
       };
     }
 
@@ -61,27 +66,28 @@ module.exports = class DFA {
       transition(this.currentState, input);
     });
 
+    const status = this.isValid() ? 'Valid' : 'Fail';
+    this.status = status;
+
     return {
       printStatus: this.printStatus,
       state: this.currentState,
-      status: this.getStatus(),
+      status,
+      isValid: this.isValid,
     };
   }
 
   printStatus() {
     const state = chalk.yellow(this.currentState);
-    let status;
 
     process.stdout.write(`Machine's current state: ${state}`);
-    if (this.getStatus() === 'Fail') status = chalk.red('Fail');
-    else status = chalk.green('Valid');
+    const status = this.isValid() ? chalk.green('Valid') : chalk.red('Fail');
     process.stdout.write(`\n${chalk.dim('Status:')} ${status}\n\n`);
   }
 
-  getStatus() {
-    return this.finalStates.find(state => state === this.currentState)
-      !== undefined
-      ? 'Sucess'
-      : 'Fail';
+  isValid() {
+    return (
+      this.finalStates.find(state => state === this.currentState) !== undefined
+    );
   }
 };

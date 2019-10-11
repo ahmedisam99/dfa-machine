@@ -11,7 +11,7 @@ const sigma = [0, 1];
 
 const dfa = new DFA(sigma, {
   initial: 'initial',
-  final: 'even',
+  final: ['even'],
   states: {
     initial: { on: { 0: 'initial', 1: 'odd' } },
     even: { on: { 0: 'even', 1: 'odd' } },
