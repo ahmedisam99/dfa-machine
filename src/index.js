@@ -1,23 +1,22 @@
 const chalk = require('chalk');
-const joi = require('@hapi/joi');
-const { machineSchema, sigmaSchema } = require('./validation');
+const { machineSchema, sigmaSchema, stringSchema } = require('./validation');
 
 module.exports = class DFA {
   constructor(sigma, machineObj) {
-    const { error: sigmaError, value: _sigma } = sigmaSchema.validate(sigma);
-    if (sigmaError) throw new Error(sigmaError.details[0].message);
+    const { error: sigmaErr, value: _sigma } = sigmaSchema.validate(sigma);
+    if (sigmaErr) throw new Error(sigmaErr.details[0].message);
 
-    const { error: machineError, value: _machineObj } = machineSchema(
+    const { error: machineErr, value: _machineObj } = machineSchema(
       _sigma,
     ).validate(machineObj);
-    if (machineError) throw new Error(machineError.details[0].message);
+    if (machineErr) throw new Error(machineErr.details[0].message);
 
     const { states, initial, final } = _machineObj;
 
     this.states = states;
     this.initialState = initial;
     this.currentState = initial;
-    this.finalState = final;
+    this.finalStates = final;
     this.sigma = _sigma;
 
     this.resetState = this.resetState.bind(this);
@@ -38,12 +37,9 @@ module.exports = class DFA {
   validate(string = '') {
     this.resetState();
 
-    const { error, value: _string } = joi
-      .string()
-      .allow('')
-      .validate(string);
+    const { error: stringErr, value: _string } = stringSchema.validate(string);
 
-    if (error) throw new Error(error.details[0].message);
+    if (stringErr) throw new Error(stringErr.details[0].message);
 
     if (!_string) {
       return {
@@ -73,16 +69,19 @@ module.exports = class DFA {
   }
 
   printStatus() {
-    const state = chalk.magenta(this.currentState);
+    const state = chalk.yellow(this.currentState);
     let status;
 
-    process.stdout.write(`\n\nMachine's current state: ${state}`);
-    if (this.currentState !== this.finalState) status = chalk.red('Fail');
+    process.stdout.write(`Machine's current state: ${state}`);
+    if (this.getStatus() === 'Fail') status = chalk.red('Fail');
     else status = chalk.green('Valid');
-    process.stdout.write(`\n${chalk.yellow('Status:')} ${status}`);
+    process.stdout.write(`\n${chalk.dim('Status:')} ${status}\n\n`);
   }
 
   getStatus() {
-    return this.currentState === this.finalState ? 'Sucess' : 'Fail';
+    return this.finalStates.find(state => state === this.currentState)
+      !== undefined
+      ? 'Sucess'
+      : 'Fail';
   }
 };

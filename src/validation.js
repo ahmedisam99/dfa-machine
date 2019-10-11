@@ -1,5 +1,9 @@
 const joi = require('@hapi/joi');
 
+exports.stringSchema = joi
+  .string()
+  .allow('');
+
 exports.sigmaSchema = joi
   .array()
   .items(joi.string(), joi.number(), joi.boolean())
@@ -8,7 +12,7 @@ exports.sigmaSchema = joi
 
 exports.machineSchema = sigma => joi.object({
   initial: joi.string().required(),
-  final: joi.string().required(),
+  final: joi.array().items(joi.string().required()),
   states: joi
     .object()
     .pattern(
