@@ -1,4 +1,5 @@
 const chalk = require('chalk');
+const joi = require('@hapi/joi');
 const machineSchema = require('./machineSchema');
 
 module.exports = class DFA {
@@ -7,12 +8,15 @@ module.exports = class DFA {
 
     if (error) throw new Error(error.details[0].message);
 
-    const { states, initial, final } = value;
+    const {
+      states, initial, final, inputs,
+    } = value;
 
     this.states = states;
     this.initialState = initial;
     this.currentState = initial;
     this.finalState = final;
+    this.sigma = inputs;
 
     this.resetState = this.resetState.bind(this);
     this.setState = this.setState.bind(this);
@@ -34,16 +38,38 @@ module.exports = class DFA {
     return this.states[currentState].on[input];
   }
 
-  validate(inputString) {
+  validate(inputString = '') {
     this.resetState();
+
+    const { error, value } = joi
+      .string()
+      .allow('')
+      .validate(inputString);
+
+    if (error) {
+      throw new Error(error.details[0].message);
+    }
+
+    if (!value) {
+      return {
+        printStatus: this.printStatus,
+        currentState: this.currentState,
+        status: this.getStatus(),
+      };
+    }
 
     const { setState, transition } = this;
 
-    inputString.split('').forEach((input) => {
-      if (input !== '0' && input !== '1') {
+    value.split('').forEach((input) => {
+      const validInput = this.sigma.find(
+        (allowedInput) => String(allowedInput) === input,
+      );
+
+      if (validInput === undefined) {
         throw new Error(`Invalid input "${input}"`);
       }
-      setState(transition(this.currentState, input));
+
+      setState(transition(this.currentState, validInput));
     });
 
     return {
