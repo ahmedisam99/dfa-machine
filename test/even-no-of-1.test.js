@@ -1,11 +1,10 @@
 const tape = require('tape');
 const DFA = require('../src');
 
-tape("Testing DFA to validate strings on {0, 1} with even number of 1's", (t) => {
-  const dfa = new DFA({
+tape("Testing DFA to validate strings on {0, 1} with even number of 1's", t => {
+  const dfa = new DFA([0, 1], {
     initial: 'initial',
     final: 'even',
-    inputs: [0, 1],
     states: {
       initial: { on: { 0: 'initial', 1: 'odd' } },
       even: { on: { 0: 'even', 1: 'odd' } },

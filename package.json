@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "tape test/**/*.test.js | tap-spec",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "lint-fix": "eslint src/ --fix"
   },
   "keywords": [
     "dfa",

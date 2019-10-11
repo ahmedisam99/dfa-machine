@@ -1,25 +1,26 @@
 const chalk = require('chalk');
 const joi = require('@hapi/joi');
-const machineSchema = require('./machineSchema');
+const { machineSchema, sigmaSchema } = require('./validation');
 
 module.exports = class DFA {
-  constructor(machineObj) {
-    const { error, value } = machineSchema.validate(machineObj);
+  constructor(sigma, machineObj) {
+    const { error: sigmaError, value: _sigma } = sigmaSchema.validate(sigma);
+    if (sigmaError) throw new Error(sigmaError.details[0].message);
 
-    if (error) throw new Error(error.details[0].message);
+    const { error: machineError, value: _machineObj } = machineSchema(
+      _sigma,
+    ).validate(machineObj);
+    if (machineError) throw new Error(machineError.details[0].message);
 
-    const {
-      states, initial, final, inputs,
-    } = value;
+    const { states, initial, final } = _machineObj;
 
     this.states = states;
     this.initialState = initial;
     this.currentState = initial;
     this.finalState = final;
-    this.sigma = inputs;
+    this.sigma = _sigma;
 
     this.resetState = this.resetState.bind(this);
-    this.setState = this.setState.bind(this);
     this.transition = this.transition.bind(this);
     this.validate = this.validate.bind(this);
     this.printStatus = this.printStatus.bind(this);
@@ -30,51 +31,43 @@ module.exports = class DFA {
     this.currentState = this.initialState;
   }
 
-  setState(newState) {
-    this.currentState = newState;
-  }
-
   transition(currentState, input) {
-    return this.states[currentState].on[input];
+    this.currentState = this.states[currentState].on[input];
   }
 
-  validate(inputString = '') {
+  validate(string = '') {
     this.resetState();
 
-    const { error, value } = joi
+    const { error, value: _string } = joi
       .string()
       .allow('')
-      .validate(inputString);
+      .validate(string);
 
-    if (error) {
-      throw new Error(error.details[0].message);
-    }
+    if (error) throw new Error(error.details[0].message);
 
-    if (!value) {
+    if (!_string) {
       return {
         printStatus: this.printStatus,
-        currentState: this.currentState,
+        state: this.currentState,
         status: this.getStatus(),
       };
     }
 
-    const { setState, transition } = this;
+    const { transition } = this;
 
-    value.split('').forEach((input) => {
-      const validInput = this.sigma.find(
-        (allowedInput) => String(allowedInput) === input,
+    _string.split('').forEach(_input => {
+      const input = this.sigma.find(
+        allowedInput => String(allowedInput) === _input,
       );
 
-      if (validInput === undefined) {
-        throw new Error(`Invalid input "${input}"`);
-      }
+      if (input === undefined) throw new Error(`Invalid input "${_input}"`);
 
-      setState(transition(this.currentState, validInput));
+      transition(this.currentState, input);
     });
 
     return {
       printStatus: this.printStatus,
-      currentState: this.currentState,
+      state: this.currentState,
       status: this.getStatus(),
     };
   }
