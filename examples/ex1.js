@@ -1,6 +1,15 @@
+/*
+  Question: Construct a DFA that accepts strings over {0,1}
+            that only contains even number of 1's
+            L = {w: w ∈ {0,1}*, n0(w) mod 2 = 0}
+            Σ = {0,1}
+*/
+
 const DFA = require('../src');
 
-const dfa = new DFA([0, 1], {
+const sigma = [0, 1];
+
+const dfa = new DFA(sigma, {
   initial: 'initial',
   final: 'even',
   states: {
