@@ -20,7 +20,7 @@ exports.machineSchema = sigma => joi.object({
       joi.object({
         on: joi
           .object()
-          .pattern(/[a-zA-Z0-9]/, joi.string())
+          .pattern(/[a-zA-Z0-9-_]/, joi.string())
           .length(sigma.length),
       }),
     )
