@@ -2,6 +2,8 @@
 
 A simple implementation of a dynamic finite state machine represinting an instance of a DFA (deterministic finite automata)
 
+[![NPM](https://nodei.co/npm/dfa-machine.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/dfa-machine/)
+
 # Installation
 
 Install `dfa-machine` using npm with the command `$ npm install dfa-machine --save`
@@ -71,6 +73,7 @@ dfa.status; // Valid
 ```
 
 # Examples
+
 See more examples here: https://github.com/ahmedisam99/dfa-machine/tree/master/examples
 
 # License
